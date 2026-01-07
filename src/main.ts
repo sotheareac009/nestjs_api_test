@@ -4,11 +4,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.enableCors({
-    origin: 'http://localhost:5173', // allow Vite dev server
-    credentials: true, // optional
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: '*',
+      methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS']
+    }
   });
 
   app.useGlobalPipes(
@@ -22,20 +22,3 @@ async function bootstrap() {
   await app.listen(5174);
 }
 bootstrap();
-
-// import { ValidationPipe } from '@nestjs/common';
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from './app.module';
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule);
-
-//   app.useGlobalPipes(new ValidationPipe({
-//     whitelist: true,
-//     forbidNonWhitelisted: true,
-//     transform: true,
-//   }));
-
-//   await app.listen(3000);
-// }
-// bootstrap();

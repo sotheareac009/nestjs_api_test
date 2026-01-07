@@ -1,33 +1,29 @@
-// src/database/seed.ts
-import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
-import { VIDEO_SEED_DATA } from './seeds/video.seed';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from '../app.module';
+import { CategoriesSeedService } from '../categories/seed/categories.seed.service';
+import { VideosSeedService } from 'src/video/seeds/video-seeder.service';
 
-const prisma = new PrismaClient();
+async function bootstrap() {
+    // create a NestJS application context (no HTTP server)
+    const app = await NestFactory.createApplicationContext(AppModule);
 
-async function seed() {
-    console.log('🌱 Seeding videos...');
+    try {
+        console.log('🌱 Seeding categories...');
+        const categoriesSeedService = app.get(CategoriesSeedService);
+        await categoriesSeedService.seed();
+        console.log('✅ Category seed finished!');
 
-    await prisma.video.createMany({
-        data: VIDEO_SEED_DATA.map(video => ({
-            title: video.title,
-            channel: video.channel,
-            cover: video.cover,
-            duration: video.duration,
-            views: video.views,
-            url: video.url,
-        })),
-        skipDuplicates: true, // avoid duplicates on multiple runs
-    });
-
-    console.log('✅ Video seed finished!');
+        console.log('🌱 Seeding videos...');
+        const videosSeedService = app.get(VideosSeedService);
+        await videosSeedService.seed();
+        console.log('✅ Video seed finished!');
+    } catch (error) {
+        console.error('❌ Seed failed:', error);
+        process.exit(1);
+    } finally {
+        // close app and DB connection
+        await app.close();
+    }
 }
 
-seed()
-    .catch(e => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+bootstrap();
