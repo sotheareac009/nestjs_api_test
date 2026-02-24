@@ -20,8 +20,19 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
       - name: Build
         run: yarn build
+
+      - name: Prepare deploy folder
+        run: |
+          mkdir -p deploy
+          cp -r dist deploy/dist
+          cp -r node_modules deploy/node_modules
+          cp -r prisma deploy/prisma
+          cp package.json deploy/package.json
 
       - name: Upload to Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -30,6 +41,6 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
-          local-dir: ./dist/
-          server-dir: /public_html/api/dist/
+          local-dir: ./deploy/
+          server-dir: /public_html/api/
           dangerous-clean-slate: true
