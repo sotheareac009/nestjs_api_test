@@ -3,7 +3,7 @@ name: Deploy API (main -> public_html)
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
